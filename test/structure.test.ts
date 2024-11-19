@@ -1,5 +1,20 @@
 import { test } from "vitest";
-import { number, boolean, struct, maybe, string, any, array, anyOf, oneOf, allOf, record, filter, map, integer } from "../src/index.js";
+import {
+    number,
+    boolean,
+    struct,
+    maybe,
+    string,
+    any,
+    array,
+    anyOf,
+    oneOf,
+    allOf,
+    record,
+    filter,
+    map,
+    integer,
+} from "../src/index.js";
 import { transforms, validates } from "./util.js";
 
 test("struct({ x: string })", () =>
@@ -9,26 +24,16 @@ test("struct({ x: string })", () =>
         [null, undefined, {}, { y: "x" }, { x: 0 }, { x: 0, y: "x" }, { x: 0, z: null }],
     ));
 
-test("struct([number, string])", () => validates<[number, string]>(
-    struct([number(), string()]),
-    [
-        [0, ""],
-        [-1, "1"],
-        [0, "a"],
-    ],
-    [
-        null,
-        {},
-        [{}, {}],
-        [0, 0],
-        ["a", 1],
-        ["0", "1"],
-        ["0", "a"],
-        [0, {}],
-        [{}, ""],
-        { 0: 0, 1: "" }
-    ]
-));
+test("struct([number, string])", () =>
+    validates<[number, string]>(
+        struct([number(), string()]),
+        [
+            [0, ""],
+            [-1, "1"],
+            [0, "a"],
+        ],
+        [null, {}, [{}, {}], [0, 0], ["a", 1], ["0", "1"], ["0", "a"], [0, {}], [{}, ""], { 0: 0, 1: "" }],
+    ));
 
 test("struct(complex)", () =>
     validates<any>(
@@ -150,7 +155,7 @@ test("record(any, any)", () =>
         record(any(), any()),
         [{}, { 0: "" }, { "": null, "0": {}, 1: false as const }],
         [null, true, undefined, [], [{}]],
-        "value" // record creates a new object, referential equality is not expected to be met 
+        "value", // record creates a new object, referential equality is not expected to be met
     ));
 
 test("record(string, number)", () =>
@@ -158,7 +163,7 @@ test("record(string, number)", () =>
         record(string(), number()),
         [{}, { a: 0 }, { b: 1 }, { x: 2, "0": -1 }],
         [{ a: undefined }, { "1": null }, { "": "" }, { a: "b", c: 3 }, { x: "y", z: { x: 0 } }, { [1]: "a" }],
-        "value"
+        "value",
     ));
 
 test("maybe(number)", () =>
@@ -176,7 +181,7 @@ test("maybe(string, 'default')", () =>
             ["1", "1"],
             ["0", "0"],
             [undefined, "default"],
-            ["default", "default"]
+            ["default", "default"],
         ],
         [null, false, true, NaN, 1, 0, [], {}, [{}]],
     ));
@@ -215,36 +220,56 @@ test("oneOf(a | b, a | c | d)", () =>
 test("allOf(a | b | c, a | c | d)", () =>
     validates<"a" | "c">(allOf(anyOf("a", "b", "c"), anyOf("a", "c", "d")), ["a", "c"], ["", "b", "d", "e"]));
 
-test("filter", () => validates<string>(
-    filter(string(), x => x.length > 4 && x.length < 8),
-    ["01234", "testing", "sixsix"],
-    ["", "a", "four", "888ww888", "aaaaaaaaaaaaa", 0.5, 0, NaN, Infinity, -Infinity, true, false, null, undefined, {}, [], [{}]],
-));
+test("filter", () =>
+    validates<string>(
+        filter(string(), x => x.length > 4 && x.length < 8),
+        ["01234", "testing", "sixsix"],
+        [
+            "",
+            "a",
+            "four",
+            "888ww888",
+            "aaaaaaaaaaaaa",
+            0.5,
+            0,
+            NaN,
+            Infinity,
+            -Infinity,
+            true,
+            false,
+            null,
+            undefined,
+            {},
+            [],
+            [{}],
+        ],
+    ));
 
-test("map", () => transforms<Date>(
-    map(integer(), x => new Date(x * 1000)),
-    [
-        [0, new Date("1970-01-01")],
-        [119731017, new Date("1973-10-17 18:36:57Z")],
-        [1000000000, new Date("2001-09-09 01:46:40Z")],
-        [1234567890, new Date("2009-02-13 23:31:30Z")]
-    ],
-    [
-        0.5,
-        0.1,
-        Number.MIN_VALUE,
-        NaN,
-        Infinity,
-        -Infinity,
-        true,
-        false,
-        null,
-        undefined,
-        "",
-        "1",
-        "0",
-        {},
-        [],
-        [{}],
-    ],
-))
+test("map", () =>
+    transforms<Date>(
+        map(integer(), x => new Date(x * 1000)),
+        [
+            [0, new Date("1970-01-01")],
+            [119731017, new Date("1973-10-17 18:36:57Z")],
+            [1000000000, new Date("2001-09-09 01:46:40Z")],
+            [1234567890, new Date("2009-02-13 23:31:30Z")],
+        ],
+        [
+            0.5,
+            0.1,
+            Number.MIN_VALUE,
+            NaN,
+            Infinity,
+            -Infinity,
+            true,
+            false,
+            null,
+            undefined,
+            "",
+            "1",
+            "0",
+            {},
+            [],
+            [{}],
+        ],
+    ));

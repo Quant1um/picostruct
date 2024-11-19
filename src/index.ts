@@ -4,12 +4,12 @@ export type Validator<T> = (object: any) => T;
 export type Schema<A> = Validator<A> | (A extends Primitive ? A : never) | { [K in keyof A]: Schema<A[K]> };
 export type Result<A extends Schema<any>> =
     A extends Validator<infer K>
-    ? K
-    : A extends object
-    ? { -readonly [K in keyof A]: Result<A[K]> }
-    : A extends Primitive
-    ? A
-    : never;
+        ? K
+        : A extends object
+          ? { -readonly [K in keyof A]: Result<A[K]> }
+          : A extends Primitive
+            ? A
+            : never;
 
 export type ErrorPath = (string | number)[];
 export type ErrorInfo = ErrorDescription & { path: ErrorPath };
@@ -18,11 +18,11 @@ export type ErrorDescription =
     | { type: "union"; failures: ErrorInfo[] }
     | { type: "key"; error: ErrorInfo }
     | { type: "custom"; message: string }
-    | { type: "unexpected"; };
+    | { type: "unexpected" };
 
 /**
-* Exception that indicates a validation failure.
-*/
+ * Exception that indicates a validation failure.
+ */
 export class ValidationError extends Error {
     public info: ErrorInfo;
     constructor(info: ErrorInfo) {
@@ -36,15 +36,15 @@ export class ValidationError extends Error {
 }
 
 /**
-* Prepends a path key to the current path if the error is a ValidationError and rethrows the error.
-* Used for rethrowing errors thrown by nested validators.
-*/
+ * Prepends a path key to the current path if the error is a ValidationError and rethrows the error.
+ * Used for rethrowing errors thrown by nested validators.
+ */
 export const rethrow = <T>(e: T, path: string | number): never => {
     if (e instanceof ValidationError) {
         e.info.path.push(path);
     }
     throw e;
-}
+};
 
 /**
  * Fails the validation with a message.
@@ -55,7 +55,9 @@ export const rethrow = <T>(e: T, path: string | number): never => {
  * @param message A message to pass to the `ValidationError` constructor
  */
 export const fail = (message: string | ErrorDescription): never => {
-    throw new ValidationError(typeof message === "string" ? { type: "custom", path: [], message } : { ...message, path: [] });
+    throw new ValidationError(
+        typeof message === "string" ? { type: "custom", path: [], message } : { ...message, path: [] },
+    );
 };
 
 /**
@@ -110,20 +112,22 @@ export const validate = <const T extends Schema<any>>(x: any, schema: T): Result
  */
 export const map =
     <const T extends Schema<any>, U>(schema: T, map: (x: Result<T>) => U): Validator<U> =>
-        x =>
-            map(validate(x, schema));
+    x =>
+        map(validate(x, schema));
 
 /**
-* Filters the resulting value for additional refinement based on a specified predicate
-* @example
-* const validator = filter(number(), x > 5, "expected a value greater than 5");
-* validator(6); // throws a ValidationError
-* @param schema A validator for the input of the mapping
-* @param filter The predicate itself
-*/
-export const filter =
-    <const T extends Schema<any>>(schema: T, filter: (x: Result<T>) => boolean, message?: string | ErrorDescription): Validator<Result<T>> =>
-        map(schema, x => filter(x) ? x : fail(message || "filter failed"));
+ * Filters the resulting value for additional refinement based on a specified predicate
+ * @example
+ * const validator = filter(number(), x > 5, "expected a value greater than 5");
+ * validator(6); // throws a ValidationError
+ * @param schema A validator for the input of the mapping
+ * @param filter The predicate itself
+ */
+export const filter = <const T extends Schema<any>>(
+    schema: T,
+    filter: (x: Result<T>) => boolean,
+    message?: string | ErrorDescription,
+): Validator<Result<T>> => map(schema, x => (filter(x) ? x : fail(message || "filter failed")));
 
 /**
  * Ensures that a value is a string
@@ -131,13 +135,13 @@ export const filter =
  */
 export const string =
     (regex?: RegExp): Validator<string> =>
-        x =>
-            typeof x === "string" && (!regex || regex.test(x))
-                ? x
-                : fail({
-                    type: "expected",
-                    expected: `string${regex ? ` matching ${regex}` : ""}`,
-                });
+    x =>
+        typeof x === "string" && (!regex || regex.test(x))
+            ? x
+            : fail({
+                  type: "expected",
+                  expected: `string${regex ? ` matching ${regex}` : ""}`,
+              });
 
 /**
  * Ensures that a value is a finite number.
@@ -170,8 +174,8 @@ export const maybe: {
     <const T extends Schema<any>, D>(schema: T, default_: D): Validator<Result<T> | D>;
 } =
     <const T>(schema: T, default_?: any): Validator<Result<T> | any> =>
-        x =>
-            typeof x === "undefined" ? default_ : validate(x, schema);
+    x =>
+        typeof x === "undefined" ? default_ : validate(x, schema);
 
 /**
  * Ensures that a value matches the specified type.
@@ -183,8 +187,8 @@ export const maybe: {
  */
 export const struct =
     <const T extends Schema<any>>(schema: T): Validator<Result<T>> =>
-        x =>
-            validate(x, schema);
+    x =>
+        validate(x, schema);
 
 /**
  * Ensures that a value is an object with keys and values of a specified type.
@@ -197,8 +201,7 @@ export const record = <const K extends Schema<number | string | symbol>, const V
     value: V,
 ): Validator<Record<Result<K>, Result<V>>> => {
     return x => {
-        if (typeof x !== "object" || !x || Array.isArray(x))
-            throw fail({ type: "expected", expected: "object" });
+        if (typeof x !== "object" || !x || Array.isArray(x)) throw fail({ type: "expected", expected: "object" });
 
         let y: any = {};
         for (let i in x) {
@@ -228,18 +231,18 @@ export const record = <const K extends Schema<number | string | symbol>, const V
  */
 export const array =
     <const T extends Schema<any>>(schema: T): Validator<Result<T>[]> =>
-        x => {
-            if (!Array.isArray(x)) throw fail({ type: "expected", expected: "array" });
-            for (let i = 0; i < x.length; i++) {
-                try {
-                    x[i] = validate(x[i], schema);
-                } catch (e) {
-                    rethrow(e, i);
-                }
+    x => {
+        if (!Array.isArray(x)) throw fail({ type: "expected", expected: "array" });
+        for (let i = 0; i < x.length; i++) {
+            try {
+                x[i] = validate(x[i], schema);
+            } catch (e) {
+                rethrow(e, i);
             }
+        }
 
-            return x;
-        };
+        return x;
+    };
 
 /**
  * Ensures that any value passes validation.
@@ -261,8 +264,8 @@ type Union<T extends any[]> = Result<T[number]>;
  */
 export const allOf =
     <const T extends Schema<any>[]>(...schemas: T): Validator<Intersect<T>> =>
-        x =>
-            schemas.reduce(validate, x);
+    x =>
+        schemas.reduce(validate, x);
 
 /**
  * Ensures that only values that match any of the specified validators pass validation.
@@ -275,23 +278,23 @@ export const allOf =
  */
 export const anyOf =
     <const T extends Schema<any>[]>(...schemas: T): Validator<Union<T>> =>
-        x => {
-            let failures = [];
-            for (let schema of schemas) {
-                try {
-                    return validate(x, schema);
-                } catch (e) {
-                    if (e instanceof ValidationError) {
-                        failures.push(e.info);
-                        continue;
-                    }
-
-                    throw e;
+    x => {
+        let failures = [];
+        for (let schema of schemas) {
+            try {
+                return validate(x, schema);
+            } catch (e) {
+                if (e instanceof ValidationError) {
+                    failures.push(e.info);
+                    continue;
                 }
-            }
 
-            throw fail({ type: "union", failures });
-        };
+                throw e;
+            }
+        }
+
+        throw fail({ type: "union", failures });
+    };
 
 /**
  * Ensures that only values that match only one of the specified validators pass validation.
@@ -308,27 +311,27 @@ export const anyOf =
  */
 export const oneOf =
     <const T extends Schema<any>[]>(...schemas: T): Validator<Union<T>> =>
-        x => {
-            let count = 0;
-            let result = x;
-            let failures = [];
+    x => {
+        let count = 0;
+        let result = x;
+        let failures = [];
 
-            for (let schema of schemas) {
-                try {
-                    result = validate(x, schema);
-                    count += 1;
-                } catch (e) {
-                    if (e instanceof ValidationError) {
-                        failures.push(e.info);
-                        continue;
-                    }
-
-                    throw e;
+        for (let schema of schemas) {
+            try {
+                result = validate(x, schema);
+                count += 1;
+            } catch (e) {
+                if (e instanceof ValidationError) {
+                    failures.push(e.info);
+                    continue;
                 }
 
-                if (count > 1) throw fail({ type: "unexpected" });
+                throw e;
             }
 
-            if (count === 0) throw fail({ type: "union", failures });
-            return result;
-        };
+            if (count > 1) throw fail({ type: "unexpected" });
+        }
+
+        if (count === 0) throw fail({ type: "union", failures });
+        return result;
+    };

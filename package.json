@@ -15,7 +15,8 @@
         "test": "vitest run",
         "format": "prettier --write .",
         "size": "npm run build & size-limit",
-        "ci": "npm run build & npm run test & prettier --check . & npm run size"
+        "ci": "npm run build & npm run test & prettier --check . & npm run size",
+        "publish": "npm run ci & npm publish"
     },
     "homepage": "https://github.com/Quant1um/picostruct",
     "bugs": {

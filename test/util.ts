@@ -1,12 +1,7 @@
 import { expect } from "vitest";
 import { ValidationError, type Validator } from "../src";
 
-export const validates = <T>(
-    val: Validator<T>,
-    positive: T[],
-    negative: any[],
-    mode: "ref" | "value" = "ref"
-) => {
+export const validates = <T>(val: Validator<T>, positive: T[], negative: any[], mode: "ref" | "value" = "ref") => {
     for (let x of positive) {
         expect(() => val(x), `expected to pass, but it failed (${JSON.stringify(x)})`).not.toThrowError(
             ValidationError,
@@ -25,7 +20,7 @@ export const transforms = <T>(
     val: Validator<T>,
     positive: [any, T][],
     negative: any[],
-    mode: "ref" | "value" = "value"
+    mode: "ref" | "value" = "value",
 ) => {
     for (let [x, y] of positive) {
         expect(() => val(x), `expected to pass, but it failed (${JSON.stringify(x)})`).not.toThrowError(
