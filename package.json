@@ -1,0 +1,47 @@
+{
+    "name": "picostruct",
+    "version": "0.1.0",
+    "description": "teeny tiny typescript object validator",
+    "keywords": [
+        "typescript",
+        "validator",
+        "json",
+        "validation",
+        "schema"
+    ],
+    "main": "dist/index.js",
+    "scripts": {
+        "build": "tsc",
+        "test": "vitest run",
+        "format": "prettier --write .",
+        "size": "npm run build & size-limit",
+        "ci": "npm run build & npm run test & prettier --check . & npm run size"
+    },
+    "homepage": "https://github.com/Quant1um/picostruct",
+    "bugs": {
+        "url": "https://github.com/Quant1um/picostruct/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Quant1um/picoval.git"
+    },
+    "size-limit": [
+        {
+            "path": "dist/index.js",
+            "limit": "1 kB"
+        }
+    ],
+    "author": "Quant1um (https://amee.ee)",
+    "license": "MIT",
+    "files": [
+        "dist"
+    ],
+    "type": "module",
+    "devDependencies": {
+        "@size-limit/preset-small-lib": "^11.1.6",
+        "prettier": "^3.3.3",
+        "size-limit": "^11.1.6",
+        "typescript": "^5.6.3",
+        "vitest": "^2.1.5"
+    }
+}
