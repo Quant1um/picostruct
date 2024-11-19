@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "module": "Preserve",
         "esModuleInterop": true,
         "skipLibCheck": true,
         "target": "es2022",
@@ -12,11 +13,7 @@
         "strict": true,
         "noUncheckedIndexedAccess": true,
         "noImplicitOverride": true,
-        "module": "NodeNext",
-        "outDir": "dist",
-        "rootDir": "src",
-        "sourceMap": true,
-        "declaration": true
+        "noEmit": true
     },
     "include": ["src/**/*"],
     "exclude": ["test/**/*"]

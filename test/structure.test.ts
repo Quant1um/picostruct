@@ -14,8 +14,8 @@ import {
     filter,
     map,
     integer,
-} from "../src/index.js";
-import { transforms, validates } from "./util.js";
+} from "../src/index";
+import { transforms, validates } from "./util";
 
 test("struct({ x: string })", () =>
     validates<any>(

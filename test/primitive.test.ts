@@ -1,6 +1,6 @@
 import { test } from "vitest";
-import { number, boolean, integer, struct, string, any, never } from "../src/index.js";
-import { transforms, validates } from "./util.js";
+import { number, boolean, integer, struct, string, any, never } from "../src/index";
+import { validates } from "./util";
 
 test("boolean", () =>
     validates<boolean>(
