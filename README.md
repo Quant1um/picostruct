@@ -45,7 +45,7 @@ const order = struct({
     ),
 
     time: unixTimestamp(),
-    custom: custom()
+    custom: custom
 });
 
 const request = order(JSON.parse("..."));
